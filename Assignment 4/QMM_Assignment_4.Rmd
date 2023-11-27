@@ -1,0 +1,213 @@
+---
+title: "QMM Assignment 4"
+author: "Agasthya Maheshwaram"
+output: html_document
+date: "2023-11-26" 
+---
+
+***Summary:***
+
+1. The ideal objective value in the context of the linear programming (LP) challenge is determined to be 225.
+
+2. The equations which I got for the maximizations: 6x1+4x2+5x3-(y1+(-)y1-)=50
+8x1+7x2+5x3-(y2+(-)y2-)=75
+
+3. The objective function of the solution is Max Z = 20x1 +15x2 + 25x3 - 6y1+ - 6y1- - 3y2-
+
+4.In order to achieve a profit of 225 million in the linear programming goal (lp_gp), the best production strategy is to produce 15 units of product 3 and not produce any of the first two products. The precise goal of this strategic decision is to maximize the achievement of the desired profit.
+
+
+***Problem Statement:***
+
+The Research and Development Division of the Emax Corporation has developed three new
+products. A decision now needs to be made on which mix of these products should be produced.
+Management wants primary consideration given to three factors: total profit, stability in the
+workforce, and achieving an increase in the company’s earnings next year from the $75 million
+achieved this year. In particular, using the units given in the following table, they want to
+Maximize Z = P - 6C - 3D, where
+P = total (discounted) profit over the life of the new products,
+C = change (in either direction) in the current level of employment,
+D = decrease (if any) in next year’s earnings from the current year’s level.
+The amount of any increase in earnings does not enter into Z, because management is concerned
+primarily with just achieving some increase to keep the stockholders happy. (It has mixed
+feelings about a large increase that then would be difficult to surpass in subsequent years.)
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(kableExtra)
+```
+
+
+```{r}
+program_df= data.frame(Factor=c("Total profit","Employement level","Earning next year"),
+"1"=c(20,6,8),
+"2"=c(15,4,7),
+"3"=c(25,5,5),
+"Goal"=c("Maximize","= 50",">=75"),
+"Units"=c('Millions of dollars','Hundreds of employees','Millions of dollars')
+)
+```
+
+```{r}
+program_df %>%
+kable(align = "c") %>%
+kable_classic() %>%
+add_header_above(header = c(" "=1,"Product"=3," "=2)) %>%
+add_header_above(header = c(" "=1,"Unit contribution"=3," "=2)) %>%
+column_spec(1,border_right = TRUE) %>%
+column_spec(4,border_right = TRUE) %>%
+column_spec(5,border_right = TRUE)
+```
+
+
+# Question-1:
+
+
+Let p1, p2, and p3 represent the first, second, and third goods' respective production rates. The following is how the limits can be stated with reference to these products:
+
+
+Employment Level:
+6𝑥1 + 4𝑥2 + 5𝑥3 = 50
+Earning next year :
+8𝑥1 + 7𝑥2 + 5𝑥3 ≥ 75
+We can write these two constraints in deviation form as below:
+
+```{r}
+#𝑦1 = 6𝑥1 + 4𝑥2 + 5𝑥3 − 50
+#𝑦2 = 8𝑥1 + 7𝑥2 + 5𝑥3 − 75
+```
+
+The profit derived from 6𝑥1 + 4𝑥2 + 5𝑥3  is constrained by a minimum requirement of 50. Consequently, y1 exhibits versatility, with the potential to assume positive, negative, or zero values depending on the predominance of either the positive or negative component. This reasoning holds true for the other two constraints as well.
+
+Let’s define:
+yi=yi+(-)yi-
+
+That is,
+𝑦1=𝑦1+(-)y1-
+y2=y2+(-)y2-
+
+#y1+
+"positive deviation indicating an overabundance of employment"
+
+#y1-
+"underachievement "
+
+#𝑦2+
+"overachievement"
+
+#y2-
+"negative departure from earnings indicated"
+
+Then we can write the above three constraints as:
+y1+(-)y1- = 6x1+4x2+5x3-50
+y2+(-)y2- = 8x1+7x2+5x3-75
+
+Formulation:
+
+Max Profit = 20x1 +15x2 + 25x3.
+
+Some simple math yields:
+
+6x1+4x2+5x3-(y1+(-)y1-)=50
+8x1+7x2+5x3-(y2+(-)y2-)=75
+
+# Question 2:
+
+Given is to, Maximize Z = P - 6C - 3D
+where
+P(total profits) =
+20𝑥1 + 15𝑥2 + 25𝑥3
+C(change in employment rate) =
+𝑦1
+D(decrease in next years’s earnings) =
+𝑦2
+So, the objective function is
+Max Z = 20x1 +15x2 + 25x3 - 6y1+ - 6y1- - 3y2-
+
+Subject to the constraints:
+
+6x1+4x2+5x3-(y1+(-)y1-)=50
+8x1+7x2+5x3-(y2+(-)y2-)=75
+
+Decision variables’ non-negativity:
+                                    Where,xj >=0 where j=1,2,3
+                                    yi + >=0 where i= 1,2
+                                    yi - >=0 where i= 1,2 
+
+
+# Question 3:
+
+```{r}
+library(lpSolveAPI)
+```
+
+```{r}
+lp_gp <-make.lp(2,7)
+```
+
+```{r}
+set.objfn(lp_gp, c(20,15,25,-6,-6,0,-3))
+```
+
+```{r}
+lp.control(lp_gp, sense = 'max')
+```
+
+```{r}
+set.row(lp_gp,1,c(6,4,5,-1,1,0,0), indices = c(1,2,3,4,5,6,7))
+```
+
+```{r}
+set.row(lp_gp,2,c(8,7,5,0,0,-1,1), indices = c(1,2,3,4,5,6,7))
+```
+
+```{r}
+rhs<-c(50,75)
+```
+
+```{r}
+set.rhs(lp_gp,rhs)
+```
+
+```{r}
+set.constr.type(lp_gp,c("=","="))
+```
+
+```{r}
+set.bounds(lp_gp,lower = rep(0,7))
+```
+
+```{r}
+gp_lp_rows<-c("employment","earnings")
+```
+
+```{r}
+gp_lp_col<-c("x1","x2","x3","y1p","y1m","y2p","y2m")
+```
+
+```{r}
+solve(lp_gp)
+```
+```{r}
+get.objective(lp_gp)
+```
+```{r}
+get.variables(lp_gp)
+```
+
+The following results are related to the goal programming problem and demonstrate how the target function may be used to obtain a successful solution while adhering to the set limitations.
+
+The ideal objective value in the context of the linear programming (LP) challenge is determined to be 225. The following values thus clarify the best possible states of the choice variables at this solution:
+
+• 𝑥1 = 0
+• 𝑥2 = 0
+• 𝑥3 = 15
+• 𝑦1+ = 25
+• 𝑦1− = 0
+• 𝑦2+ = 0
+• 𝑦2− = 0
